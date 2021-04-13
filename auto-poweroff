@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# @Author: akliuxingyuan
+# @Date: 2020-12-09 15:12:01
+# @Description: auto poweroff shell script for cron
+# 
+
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
+export cron_poweroff_logfile=$HOME/poweroff.log
+
+
+echo '╰-----------------------------------------╯' >> cron_poweroff_logfile 2>&1
+
+echo '╭-----------'$(date +"%Y-%m-%d %H:%m:%S")'-----------╮' >> cron_poweroff_logfile 2>&1
+
+gnome-session-quit --power-off >> cron_poweroff_logfile 2>&1

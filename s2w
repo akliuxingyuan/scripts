@@ -42,7 +42,7 @@ function check_target(){
                 ;;
 
             [nN][oO]|[nN])
-                echo "You should have certain maintained targer: $mytarget"
+                echo "You should have certain maintained target: $mytarget"
                 exit 1
                 ;;
 
@@ -117,7 +117,7 @@ if [[ $# -eq 0 ]]; then
     echo "need more parameters!"
     echo ""
     show_help
-    eixt 0
+    exit 0
 fi
 
 ARGS=`getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$@"`

@@ -92,7 +92,6 @@ function list_contents(){
     done
 }
 
-
 function delete_link(){
     for arg in ${@:1}; do
         if [[ $arg = /* && `dirname $arg` = $mytarget ]]; then

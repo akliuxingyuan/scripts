@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+readonly CURRENT_PATH=$(pwd)
+
+mysource=$CURRENT_PATH
+mytarget=$HOME/DeepinWine-FileRoller
+
+if [[ ! -f $1 && ! -d $1 ]]; then
+    echo "no such file or directory!"
+    exit 1
+elif [[ $1 = /* ]]; then
+    mysource=$1   # absolute
+else
+    mysource=$CURRENT_PATH/$1    # relative
+fi
+
+echo "$mysource -> $mytarget/${mysource##*/}"
+
+exit 0
+
+if [[ -f $mysource ]]; then
+    ln -sf $mysource $mytarget/${mysource##*/}
+elif [[ -d $mysource ]]; then
+    ln -snf $mysource $mytarget/${mysource##*/}
+else
+    echo "no such file or directory!"
+    exit 1
+fi

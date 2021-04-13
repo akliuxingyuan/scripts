@@ -25,7 +25,7 @@ function show_help() {
     echo ""
     echo "If no arguments are provided 's2w add [target...]' will be performed"
     echo ""
-    echo "Example:"
+    echo "Examples:"
     echo "      s2w file1 /etc/hosts /usr/share/fonts"
     echo "      s2w -a file"
     echo "      s2w --add \"file1 /tmp/file2 dir1 /tmp/dir2\""
@@ -42,7 +42,8 @@ function check_target(){
                 ;;
 
             [nN][oO]|[nN])
-                echo "You Should mkdir $mytarget"
+                echo "You should have certain maintained targer: $mytarget"
+                exit 1
                 ;;
 
             *)
@@ -83,7 +84,11 @@ function list_contents(){
     echo "$mytarget:"
     echo ""
     for file in $mytarget/*; do
-        echo "$file -> `readlink $file`"
+        if [[ -L $file ]]; then
+            echo "$file -> `readlink $file`"
+        else
+            echo $file
+        fi
     done
 }
 
@@ -91,14 +96,29 @@ function list_contents(){
 function delete_link(){
     for arg in ${@:1}; do
         if [[ $arg = /* && `dirname $arg` = $mytarget ]]; then
-            rm $arg
+            if [[ -d $arg && ! -L $arg ]]; then
+                rm -irf $arg
+            else
+                rm $arg
+            fi
         elif [[ -f $mytarget/$arg || -d $mytarget/$arg ]]; then
-            rm $mytarget/$arg
+            if [[ -d $mytarget/$arg && ! -L $mytarget/$arg ]]; then
+                rm -irf $mytarget/$arg
+            else
+                rm $mytarget/$arg
+            fi
         else
             echo "file not found"
         fi
     done
 }
+
+if [[ $# -eq 0 ]]; then
+    echo "need more parameters!"
+    echo ""
+    show_help
+    eixt 0
+fi
 
 ARGS=`getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$@"`
 if [ $? != 0 ]; then

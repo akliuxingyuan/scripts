@@ -1,30 +1,149 @@
 #!/bin/sh
+#
+# @Author: akliuxingyuan
+# @Date: 2021-04-13 15:42:37
+# @Description: share only certain files to wine container by manage a directory with softlink
+# 
 
 set -e
 
 readonly CURRENT_PATH=$(pwd)
 
 mysource=$CURRENT_PATH
-mytarget=$HOME/DeepinWine-FileRoller
+mytarget=$HOME/DeepinWine-FileRoller # maintained directory
 
-if [[ ! -f $1 && ! -d $1 ]]; then
-    echo "no such file or directory!"
+function show_help() {
+    echo "Usage:"
+    echo "      s2w [options...] [target...]"
+    echo "      s2w [target...]"
+    echo ""
+    echo "Options:"
+    echo "      -a, --add                               add file or directory to maintained directory"
+    echo "      -d, --delete                            delete file or directory from maintained directory"
+    echo "      -l, --list                              list maintained directory contents"
+    echo "      -h, --help                              show help message"
+    echo ""
+    echo "If no arguments are provided 's2w add [target...]' will be performed"
+    echo ""
+    echo "Example:"
+    echo "      s2w file1 /etc/hosts /usr/share/fonts"
+    echo "      s2w -a file"
+    echo "      s2w --add \"file1 /tmp/file2 dir1 /tmp/dir2\""
+    echo "      s2w -d \"file1 dir1\""
+    echo "      s2w --list"
+}
+
+function check_target(){
+    if [[ ! -d $mytarget ]]; then
+        read -r -p "Mkdir $mytarget? [Y/n] " input
+        case $input in
+            [yY][eE][sS]|[yY])
+                mkdir $mytarget
+                ;;
+
+            [nN][oO]|[nN])
+                ;;
+
+            *)
+                echo "Invalid input..."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+function add_link(){
+    check_target
+    mysource=$CURRENT_PATH
+    for arg in ${@:1}; do
+        if [[ ! -f $arg && ! -d $arg ]]; then
+            echo "no such file or directory! $arg"
+            exit 1
+        elif [[ $arg = /* ]]; then
+            mysource=$arg   # absolute
+        else
+            mysource=$CURRENT_PATH/$arg    # relative
+        fi
+
+        echo "$mysource -> $mytarget/${mysource##*/}"
+
+        if [[ -f $mysource ]]; then
+            ln -sf $mysource $mytarget/${mysource##*/}
+        elif [[ -d $mysource ]]; then
+            ln -snf $mysource $mytarget/${mysource##*/}
+        else
+            echo "not supported!"
+            exit 1
+        fi
+    done
+}
+
+function list_contents(){
+    echo "$mytarget:"
+    echo ""
+    for file in $mytarget/*; do
+        echo "$file -> `readlink $file`"
+    done
+}
+
+
+function delete_link(){
+    for arg in ${@:1}; do
+        if [[ $arg = /* && `dirname $arg` = $mytarget ]]; then
+            rm $arg
+        elif [[ -f $mytarget/$arg || -d $mytarget/$arg ]]; then
+            rm $mytarget/$arg
+        else
+            echo "file not found"
+        fi
+    done
+}
+
+ARGS=`getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$@"`
+if [ $? != 0 ]; then
+    echo "Terminating..."
     exit 1
-elif [[ $1 = /* ]]; then
-    mysource=$1   # absolute
-else
-    mysource=$CURRENT_PATH/$1    # relative
 fi
 
-echo "$mysource -> $mytarget/${mysource##*/}"
+eval set -- "${ARGS}"
 
-exit 0
+while true
+do
+    case "$1" in
+        -h|--help) 
+            show_help
+            shift
+            ;;
 
-if [[ -f $mysource ]]; then
-    ln -sf $mysource $mytarget/${mysource##*/}
-elif [[ -d $mysource ]]; then
-    ln -snf $mysource $mytarget/${mysource##*/}
-else
-    echo "no such file or directory!"
-    exit 1
-fi
+        -l|--list)
+            list_contents
+            shift
+            ;;
+
+        -a|--add)
+            add_link $2
+            shift 2
+            ;;
+
+        -d|--delete)
+            delete_link $2
+            shift 2
+            ;;
+
+        --)
+            shift
+            break
+            ;;
+
+        *)
+            echo "implemented option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# 添加
+for arg in $@
+do
+    add_link $arg
+done

@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# @Author: akliuxingyuan
+# @Date: 2020-09-27 14:38:37
+# @Description: use awk to filter simple ip address information
+#
+
+ip a | awk '/^[0-9]+:/{ printf "+"; for(i=1; i<=58; i++){printf "-"} printf "+\n"; printf "|%-58s|\n" ,$2 }/inet.*/{printf "|%-6s%-52s|\n", " ",$2} END{printf "+"; for(i=1; i<=58; i++){printf "-"} printf "+\n"}'

@@ -3,7 +3,7 @@
 # @Author: akliuxingyuan
 # @Date: 2021-04-13 15:42:37
 # @Description: share only certain files to wine container by manage a directory with softlink
-# @Tips: Work with File Manager Actions is better (link: https://gitlab.gnome.org/GNOME/filemanager-actions
+# @Tips: Work with File Manager Actions is much better (link: https://gitlab.gnome.org/GNOME/filemanager-actions
 # 
 
 set -e

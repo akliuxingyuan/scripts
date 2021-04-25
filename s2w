@@ -101,12 +101,14 @@ function delete_link(){
             else
                 rm $arg
             fi
+            echo "delete $arg"
         elif [[ -f $mytarget/$arg || -d $mytarget/$arg ]]; then
             if [[ -d $mytarget/$arg && ! -L $mytarget/$arg ]]; then
                 rm -irf $mytarget/$arg
             else
                 rm $mytarget/$arg
             fi
+            echo "delete $mytarget/$arg"
         else
             echo "file not found"
         fi
@@ -120,7 +122,7 @@ if [[ $# -eq 0 ]]; then
     exit 0
 fi
 
-ARGS=`getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$@"`
+ARGS=`getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$*"`
 if [ $? != 0 ]; then
     echo "Terminating..."
     exit 1

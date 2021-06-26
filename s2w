@@ -87,10 +87,17 @@ function list_contents(){
     echo ""
     for file in $mytarget/*; do
         if [[ -L $file ]]; then
+            tfile=$(readlink "$file")
+            file_dirname=$(dirname "$tfile")
+            file_basename=$(basename "$tfile")
             if [[ ! -e "$file" ]]; then    # broken symlink
                 echo -e "\033[36m $file\033[0m → \033[31m`readlink $file`\033[0m"
             else
-                echo -e "\033[36m $file\033[0m → \033[36m`readlink $file`\033[0m"
+                if [[ -d $tfile ]]; then
+                    echo -e "\033[36m $file\033[0m → \033[36m$file_dirname/\033[0m\033[34m$file_basename\033[0m"
+                else
+                    echo -e "\033[36m $file\033[0m → \033[36m$file_dirname/\033[0m$file_basename"
+                fi
             fi
         elif [[ -d $file ]]; then
             echo -e "\033[34m $file\033[0m"

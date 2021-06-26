@@ -11,7 +11,7 @@ set -e
 readonly CURRENT_PATH=$(pwd)
 
 mysource=$CURRENT_PATH
-mytarget=$HOME/DeepinWine-FileRoller # maintained directory
+mytarget=$HOME/WineFiles # maintained directory
 
 function show_help() {
     echo "Usage:"
@@ -63,7 +63,7 @@ function add_link(){
             echo "no such file or directory! $arg"
             exit 1
         elif [[ $arg = /* ]]; then
-            mysource=$arg   # absolute
+            mysource=$arg    # absolute
         else
             mysource=$CURRENT_PATH/$arg    # relative
         fi
@@ -86,9 +86,11 @@ function list_contents(){
     echo ""
     for file in $mytarget/*; do
         if [[ -L $file ]]; then
-            echo "$file -> `readlink $file`"
+            echo " $file -> `readlink $file`"
+        elif [[ -d $file ]]; then
+            echo  $file
         else
-            echo $file
+            echo  $file
         fi
     done
 }

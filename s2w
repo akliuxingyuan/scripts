@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # @Author: akliuxingyuan
 # @Birth: 2021-04-13 15:42:37
@@ -25,7 +25,7 @@ function show_help() {
     echo "      -l, --list                              list maintained directory contents"
     echo "      -h, --help                              show help message"
     echo ""
-    echo "If no arguments are provided 's2w add [target...]' will be performed"
+    echo "If no options are provided 's2w add [target...]' will be performed"
     echo ""
     echo "Examples:"
     echo "      s2w file1 /etc/hosts /usr/share/fonts"
@@ -40,7 +40,7 @@ function check_target(){
         read -r -p "Mkdir $mytarget? [Y/n] " input
         case $input in
             [yY][eE][sS]|[yY])
-                mkdir $mytarget
+                mkdir "$mytarget"
                 ;;
 
             [nN][oO]|[nN])
@@ -59,7 +59,7 @@ function check_target(){
 function add_link(){
     check_target
     mysource=$CURRENT_PATH
-    for arg in ${@:1}; do
+    for arg in "${@:1}"; do
         if [[ ! -f $arg && ! -d $arg ]]; then
             echo "no such file or directory! $arg"
             exit 1
@@ -72,9 +72,9 @@ function add_link(){
         echo "$mysource -> $mytarget/${mysource##*/}"
 
         if [[ -f $mysource ]]; then
-            ln -sf $mysource $mytarget/${mysource##*/}
+            ln -sf "$mysource" "$mytarget"/"${mysource##*/}"
         elif [[ -d $mysource ]]; then
-            ln -snf $mysource $mytarget/${mysource##*/}
+            ln -snf "$mysource" "$mytarget"/"${mysource##*/}"
         else
             echo "not supported!"
             exit 1
@@ -85,13 +85,13 @@ function add_link(){
 function list_contents(){
     echo "$mytarget:"
     echo ""
-    for file in $mytarget/*; do
+    for file in "$mytarget"/*; do
         if [[ -L $file ]]; then
             tfile=$(readlink "$file")
             file_dirname=$(dirname "$tfile")
             file_basename=$(basename "$tfile")
             if [[ ! -e "$file" ]]; then    # broken symlink
-                echo -e "\033[36m $file\033[0m → \033[31m`readlink $file`\033[0m"
+                echo -e "\033[31m \033[0m\033[36m$file\033[0m → \033[31m$tfile\033[0m"
             else
                 if [[ -d $tfile ]]; then
                     echo -e "\033[36m $file\033[0m → \033[36m$file_dirname/\033[0m\033[34m$file_basename\033[0m"
@@ -108,19 +108,19 @@ function list_contents(){
 }
 
 function delete_link(){
-    for arg in ${@:1}; do
-        if [[ $arg = /* && `dirname $arg` = $mytarget ]]; then
+    for arg in "${@:1}"; do
+        if [[ $arg = /* && $(dirname "$arg") = "$mytarget" ]]; then
             if [[ -d $arg && ! -L $arg ]]; then
-                rm -irf $arg
+                rm -irf "$arg"
             else
-                rm $arg
+                rm "$arg"
             fi
             echo "delete $arg"
         elif [[ -f $mytarget/$arg || -d $mytarget/$arg ]]; then
             if [[ -d $mytarget/$arg && ! -L $mytarget/$arg ]]; then
-                rm -irf $mytarget/$arg
+                rm -irf "$mytarget"/"$arg"
             else
-                rm $mytarget/$arg
+                rm "$mytarget"/"$arg"
             fi
             echo "delete $mytarget/$arg"
         else
@@ -136,7 +136,7 @@ if [[ $# -eq 0 ]]; then
     exit 0
 fi
 
-ARGS=`getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$*"`
+ARGS=$(getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$*")
 if [ $? != 0 ]; then
     echo "Terminating..."
     exit 1
@@ -147,7 +147,7 @@ eval set -- "${ARGS}"
 while true
 do
     case "$1" in
-        -h|--help) 
+        -h|--help)
             show_help
             shift
             ;;
@@ -158,12 +158,12 @@ do
             ;;
 
         -a|--add)
-            add_link $2
+            add_link "$2"
             shift 2
             ;;
 
         -d|--delete)
-            delete_link $2
+            delete_link "$2"
             shift 2
             ;;
 
@@ -180,7 +180,7 @@ do
 done
 
 # rest args
-for arg in $@
+for arg in "$@"
 do
-    add_link $arg
+    add_link "$arg"
 done

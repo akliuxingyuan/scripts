@@ -5,7 +5,7 @@
 # @Update: 2021-06-26 18:15:03
 # @Description: share only certain files to wine container by manage a directory with softlink
 # @Tips: Work with File Manager Actions is much better (link: https://gitlab.gnome.org/GNOME/filemanager-actions
-# 
+#
 
 set -e
 
@@ -60,7 +60,7 @@ function add_link(){
     check_target
     mysource=$CURRENT_PATH
     for arg in "${@:1}"; do
-        if [[ ! -f $arg && ! -d $arg ]]; then
+        if [[ ! -f "$arg" && ! -d "$arg" ]]; then
             echo "no such file or directory! $arg"
             exit 1
         elif [[ $arg = /* ]]; then
@@ -90,13 +90,14 @@ function list_contents(){
             tfile=$(readlink "$file")
             file_dirname=$(dirname "$tfile")
             file_basename=$(basename "$tfile")
+            file_name=$(basename "$file")
             if [[ ! -e "$file" ]]; then    # broken symlink
-                echo -e "\033[31m \033[0m\033[36m$file\033[0m → \033[31m$tfile\033[0m"
+                echo -e "\033[31m \033[0m\033[36m${file_name}\033[0m → \033[31m$tfile\033[0m"
             else
                 if [[ -d $tfile ]]; then
-                    echo -e "\033[36m $file\033[0m → \033[36m$file_dirname/\033[0m\033[34m$file_basename\033[0m"
+                    echo -e "\033[36m ${file_name}\033[0m → \033[36m${file_dirname}/\033[0m\033[34m${file_basename}\033[0m"
                 else
-                    echo -e "\033[36m $file\033[0m → \033[36m$file_dirname/\033[0m$file_basename"
+                    echo -e "\033[36m ${file_name}\033[0m → \033[36m${file_dirname}/\033[0m${file_basename}"
                 fi
             fi
         elif [[ -d $file ]]; then
@@ -136,7 +137,7 @@ if [[ $# -eq 0 ]]; then
     exit 0
 fi
 
-ARGS=$(getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$*")
+ARGS=$(getopt -o hla:d: --long help,list,add:,delete: --name "$0" -- "$@")
 if [ $? != 0 ]; then
     echo "Terminating..."
     exit 1

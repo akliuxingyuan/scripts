@@ -1,4 +1,4 @@
-#
+#!/bin/zsh
 # check which terminal emulator is using
 
 # set in script

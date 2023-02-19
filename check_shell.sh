@@ -1,4 +1,4 @@
-#
+#/bin/zsh
 # check which shell the script or terminal is using
 
 # method 1:

@@ -3,7 +3,7 @@
 
 # URL encoding / percent-encoding
 function url_decode() {
-    # : "${*//+/}" # reserve + symbol, because space encoded as %20
+    # : "${*//+/ }" # reserve + symbol, because space encoded as %20
     printf "${_//\%/\\x}"
 }
 

@@ -23,7 +23,7 @@ for arg in "$@"; do
 
     for type in "$thumb_types[@]"; do
         thumb_file="$HOME/.cache/thumbnails/${type}/${thumb_name}.png"
-        if [[ -e $thumb_file ]]; then
+        if [[ ! -e $thumb_file ]]; then
             printf "no $type thumbnails\n"
         else
             rm $thumb_file

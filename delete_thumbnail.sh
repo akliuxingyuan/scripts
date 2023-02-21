@@ -21,7 +21,7 @@ for arg in "$@"; do
     thumb_name=$(printf "%s" $(url_encode $request_file) | md5sum)
     thumb_name=${thumb_name//[ -]/}
 
-    for type in "$thumb_types[@]"; do
+    for type in "${thumb_types[@]}"; do
         thumb_file="$HOME/.cache/thumbnails/${type}/${thumb_name}.png"
         if [[ ! -e $thumb_file ]]; then
             printf "no $type thumbnails\n"
